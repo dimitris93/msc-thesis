@@ -1,5 +1,10 @@
 # =====================================================
-# Overview - Packages that need to be installed
+# R scripts needs to be run from the base directory "/code"
+# =====================================================
+
+
+# =====================================================
+# Packages that need to be installed
 # =====================================================
 # simIReff
 # VineCopula
@@ -24,14 +29,12 @@
 # devEMF
 
 
-
 # =====================================================
 # Useful Information
 # =====================================================
-# If you have problems running my code due to the packages used,
-# I have produced two .txt files in "/other" with all the versions and package names on:
-# i) my Windows machine and ii) the TU Delft Cluster (CentOS-7)
-# This was done via "print_all_package_versions()" below:
+# Using the function below, I have produced a .txt file 
+# "code/output/all_package_versions_WINDOWS.txt"
+# with all package versions used in the thesis.
 print_all_package_versions <- function(dir = 'output', output_path = 'all_package_versions_WINDOWS.txt') {
   dir.create(dir, recursive = TRUE)
   
@@ -45,7 +48,7 @@ print_all_package_versions()
 
 
 # =====================================================
-# Windows - How to install packages
+# How to install packages (WINDOWS)
 # =====================================================
 install.packages('simIReff', type = 'binary')
 install.packages('VineCopula', type = 'binary')
@@ -75,7 +78,7 @@ install.packages('devEMF', type = 'binary')
 
 
 # =====================================================
-# TU Delft Cluster (CentOS-7) - How to install packages
+# How to install packages (TU DELFT CLUSTER - CentOS 7)
 # =====================================================
 # Need to run this first, so that GCC is a higher version for later installs
 # module use /opt/insy/modulefiles
@@ -116,19 +119,3 @@ install.packages('doParallel')
 install.packages('Hmisc')
 install.packages('conquer')
 install.packages('devEMF')
-
-
-# =====================================================
-# Remember to always run all R scripts from the base directory
-# =====================================================
-
-
-# =====================================================
-# Need to run this first to convert the Terabyte collection to "our" format
-# =====================================================
-source('R/utils.R')
-read_terabyte2006('data/terabyte2006/', 'data/')
-
-
-
-
