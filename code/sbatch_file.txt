@@ -1,0 +1,20 @@
+#!/bin/sh
+#SBATCH --partition=general
+#SBATCH --qos=short
+#SBATCH --time=04:00:00
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=64
+#SBATCH --mem=80000
+#SBATCH --mail-type=END
+
+# Use this simple command to check that your sbatch settings are working
+/usr/bin/scontrol show job -d "$SLURM_JOB_ID"
+
+# srun Rscript --vanilla R/02-margins-split_half.R
+# srun Rscript --vanilla R/04-margins-25vs50.R
+# srun Rscript --vanilla R/06-copulas-split_half.R
+# srun Rscript --vanilla R/07-copulas-25vs50.R
+srun Rscript --vanilla R/08-estimate_n_for_SHC.R
+
+
+

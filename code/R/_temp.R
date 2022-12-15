@@ -1,0 +1,1 @@
+df <- sample_n(df, 2000)

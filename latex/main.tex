@@ -1,0 +1,48 @@
+\documentclass{tudelft-report}
+%\usepackage[style=draft, url=false, backend=bibtex]{biblatex}
+\usepackage[style=numeric, url=false, backend=bibtex]{biblatex}
+\usepackage{changes}
+\usepackage{csquotes}
+\usepackage{subcaption}
+\captionsetup{justification=centering}
+\newcommand{\HRule}{\rule{.9\linewidth}{.6pt}}
+\usepackage{eso-pic}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{tablefootnote}
+\interfootnotelinepenalty=10000
+\usepackage[super]{nth}
+\usepackage[group-separator={,}]{siunitx}
+\addbibresource{C:/Users/Dimitris/Desktop/STUDY/Mendeley/bib/thesis.bib}
+\graphicspath{{C:/Users/Dimitris/Desktop/thesis/code/output/}}
+%\usepackage{arydshln} % for dotted line
+%\newcommand{\dottedhline}{\hdashline[3pt/7pt]}  
+
+
+\begin{document}
+	\frontmatter %% use roman numerals for the page numbers of the chapters	
+	% ----------------------------------------------------
+	%                   Add .pdf Info
+	% ----------------------------------------------------
+	\title[tudelft-black]{Exploring Copula-Based Models for the Stochastic Simulation of Information Retrieval Evaluation Data.}
+%	\subtitle[tudelft-black]{}
+	\author[tudelft-black]{Dimitris Theodorakopoulos}	
+	
+	\input{01-cover}	
+	\definecolor{tudelft-cyan}{cmyk}{1,1,1,1} % For black fonts uncomment	
+	\input{02-info}	
+	\input{03-abstract}	
+	\tableofcontents
+	%	\listoffigures	
+	\mainmatter % use Arabic numerals for the page numbers of the chapters
+	\input{ch1}	
+	\input{ch2}
+	\input{ch3}
+	\input{ch4}
+	\input{ch5}
+	\appendix % use letters for the chapter numbers of the appendices
+	%\input{appendix-a}	
+	\printbibliography
+	
+\end{document}
+
