@@ -292,7 +292,7 @@ dev.off()
 
 
 # ==================================================================================== 
-# Plots for presenting explaining the need for a Delta_expected in early Chapter 3
+# Plots for explaining the need for a Delta_expected in early Chapter 3
 # ==================================================================================== 
 set.seed(125114)
 output_path <- 'output/margins'
