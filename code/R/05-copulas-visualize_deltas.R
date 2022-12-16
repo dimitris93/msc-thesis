@@ -67,7 +67,6 @@ diff1 <- joint_cdf_cdf_diff(cdf_t1, ecdf_t2)
 diff2 <- joint_cdf_cdf_diff(ecdf_t1, ecdf_t2)
 
 
-
 p <- plot_ly(showscale = FALSE, showlegend=TRUE, width=650, height=550) %>%
   config(mathjax = 'cdn')  %>%
   add_trace(x=cdf_t1_data$x, y=cdf_t1_data$y, z=cdf_t1_data$z, intensity =cdf_t1_data$z, type="mesh3d", opacity=1,  colorscale = list(c(0,1),c("blue","blue")), name=TeX(paste('CDF_{T1}\\text{(', beautify(cop_t1$familyname), ')}'))) %>%
@@ -107,7 +106,6 @@ p <- plot_ly(showscale = FALSE, showlegend=TRUE, width=650, height=550) %>%
 print(p)
 
 
-
 p <- plot_ly(showscale = FALSE, showlegend=TRUE, width=650, height=550) %>%
   config(mathjax = 'cdn')  %>%
   add_trace(x=cdf_t1_data$x, y=cdf_t1_data$y, z=cdf_t1_data$z, intensity =cdf_t1_data$z, type="mesh3d", opacity=1,  colorscale = list(c(0,1),c("blue","blue")), name=TeX(paste('CDF_{T1}\\text{(', beautify(cop_t1$familyname), ')}'))) %>%
@@ -140,7 +138,6 @@ p <- plot_ly(showscale = FALSE, showlegend=TRUE, width=650, height=550) %>%
                       camera=list(eye = list(x = 1.25, y = -1.25, z = 0.25))),
          legend = list(orientation = "h", xanchor = "center", x = 0.5, y=0))
 print(p)
-
 
 
 
@@ -237,7 +234,7 @@ p <- plot_ly(showscale = FALSE, showlegend=TRUE, width=650, height=550) %>%
 print(p)
 
 
-# 2 empericals
+# 2 empiricals
 p <- plot_ly(showscale = FALSE, showlegend=TRUE, width=650, height=550) %>%
   config(mathjax = 'cdn')  %>%
   add_trace(x=ecdf_t1_data$x, y=ecdf_t1_data$y, z=ecdf_t1_data$z, intensity =ecdf_t1_data$z, type="mesh3d", opacity=1,  colorscale = list(c(0,1),c("purple","purple")), name=TeX('F_{1}')) %>%
@@ -252,6 +249,3 @@ p <- plot_ly(showscale = FALSE, showlegend=TRUE, width=650, height=550) %>%
                       camera=list(eye = list(x = 1.25, y = -1.25, z = 0.25))),
          legend = list(orientation = "h", xanchor = "center", x = 0.5, y=0, font=list(size = 28)))
 print(p)
-
-
-

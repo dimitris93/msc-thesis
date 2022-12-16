@@ -1,5 +1,7 @@
+# ==================================================================================== 
+# Plots for diagrams 1, 2 & 3
+# ==================================================================================== 
 source("R/utils.R")
-
 set.seed(8235238)
 output_path <- 'output/margins'
 measures <-  c("ap")
@@ -53,13 +55,7 @@ pseudoscores_s1_T2 <- u2[,1]
 pseudoscores_s2_T2 <- u2[,2]
 
 cop <- BiCopSelect(pseudoscores_s1, pseudoscores_s2, selectioncrit = "AIC") # fit copula
-# c_t1 <- BiCopSelect(pseudoscores_s1_T1, pseudoscores_s2_T1, selectioncrit = "AIC") # fit copula
-# c_t2 <- BiCopSelect(pseudoscores_s1_T2, pseudoscores_s2_T2, selectioncrit = "AIC") # fit copula
 c_cdf <- function (x, y) { return(BiCopCDF_2(x, y, cop)) }
-# c_cdf_t1 <- function (x, y) { return(BiCopCDF_2(x, y, c_t1)) }
-# c_cdf_t2 <- function (x, y) { return(BiCopCDF_2(x, y, cop_t2)) }
-# c_ecdf_t1 <- function (x, y) {return(sapply(1:length(x), function(i) mean(pseudoscores_s1_T1 <= x[i] & pseudoscores_s2_T1 <= y[i])))}
-# c_ecdf_t2 <- function (x, y) {return(sapply(1:length(x), function(i) mean(pseudoscores_s1_T2 <= x[i] & pseudoscores_s2_T2 <= y[i])))}
 
 if(measure %in% c("ap", "ndcg20", "err20")) { # continuous case
   X <- seq(0, 1, length.out = 1001)
@@ -73,7 +69,6 @@ delta_expected <- cdf_cdf_diff(m_ecdf_A_T1, m_ecdf_A_T2, measure, only_mean = FA
 KS_index <- order(delta_observed$highest_Y - delta_observed$lowest_Y,decreasing=T)[1]
 
 
-# ===================== Plots for Diagram 1 =====================
 emf(file=paste0(output_path, '/diag1_m_cdf_A__', measure, '.emf'), width=1.8, height=1.8, pointsize = 9)
 par(mar=c(0.3,0.3,0.3,0.3))
 plot(x=X, y=m_cdf_A(X),
@@ -114,22 +109,6 @@ axis(2, lwd.tick=0)
 box(bty='L')
 dev.off()
 
-# ------------- plot copula, have to save manually --------------
-# n <- 100
-# xy_range <- seq(0, 1, length.out = n)
-# Z <- sapply(xy_range, function(x) c_cdf(xy_range, rep(x, n)))
-# c_cdf_data <- data.frame(x=rep(xy_range, n), y=rep(xy_range, each=n), z=unlist(as.list(Z)))
-# 
-# p_1_sample <- plot_ly(showscale = FALSE, showlegend=TRUE, width=650, height=550) %>%
-#   config(mathjax = 'cdn')  %>%
-#   add_trace(x=c_cdf_data$x, y=c_cdf_data$y, z=c_cdf_data$z, intensity =c_cdf_data$z, type="mesh3d", 
-#             opacity=0.5, colorscale = list(c(0,1),c("darkgreen","darkgreen"))) %>%
-#   layout(scene = list(xaxis=list(title='X', showticklabels = F),
-#                       yaxis=list(title='Y', showticklabels = F),
-#                       zaxis=list(title='Z', showticklabels = F),
-#                       camera=list(eye = list(x = 1.25, y = -1.25, z = 0))))
-# print(p_1_sample)
-
 emf(file=paste0('output/copulas/diag1_copula_PDF_contour_', measure, '.emf'), width=1.8, height=1.8, pointsize = 9)
 par(mar=c(0.4,0.4,0.4,0.4))
 plot(NA,NA,xlim = c(-3,3), ylim = c(-3,3), xaxt='n', yaxt='n', xlab='', ylab='',bty='L')
@@ -137,8 +116,6 @@ contour(cop, drawlabels = FALSE, col = 'darkgreen', add = TRUE, lwd = 1.25)
 box(bty='L')
 dev.off()
 
-
-# ===================== Plots for Diagram 2 & 3 =====================
 emf(file=paste0(output_path, '/diag2&3_m_cdf_A_T1__', measure, '.emf'), width=1.8, height=1.8, pointsize = 9)
 par(mar=c(0.3,0.3,0.3,0.3))
 plot(x=X, y=m_cdf_A_T1(X),
@@ -216,6 +193,7 @@ box(bty='L')
 dev.off()
 
 
+
 # ==================================================================================== 
 # Plots for presenting KS, CvM in early Chapter 3
 # ==================================================================================== 
@@ -272,6 +250,7 @@ delta_observed <- cdf_cdf_diff(m_cdf_A_T1, m_cdf_A_T2, measure, only_mean = FALS
 delta_expected <- cdf_cdf_diff(m_ecdf_A_T1, m_cdf_A_T2, measure, only_mean = FALSE)
 KS_index <- order(delta_observed$highest_Y - delta_observed$lowest_Y,decreasing=T)[1]
 
+
 pdf(file=paste0(output_path, '/present_delta_KS_(m_cdf_A_T1_,m_cdf_A_T2)__', measure, '.pdf'), width=2.75, height=2.75, pointsize = 10)
 par(mar=c(4.1,4.1,1.3,0.3))
 plot(x=X, y=m_cdf_A_T1(X),
@@ -311,10 +290,11 @@ legend(x='bottomright', legend=c(expression(F^{"*"}), expression(F)),
 dev.off()
 
 
+
 # ==================================================================================== 
 # Plots for presenting explaining the need for a Delta_expected in early Chapter 3
 # ==================================================================================== 
-set.seed(125114) # 627847
+set.seed(125114)
 output_path <- 'output/margins'
 measures <-  c("ap")
 measure <-  c("ap")
@@ -372,7 +352,6 @@ if(measure %in% c("ap", "ndcg20", "err20")) { # continuous case
 delta_observed <- cdf_cdf_diff(m_cdf_A_T1, m_ecdf_A_T2, measure, only_mean = FALSE)
 delta_observed_top2 <- cdf_cdf_diff(m_cdf_A_T1_top2, m_ecdf_A_T2, measure, only_mean = FALSE)
 delta_expected <- cdf_cdf_diff(m_ecdf_A_T1, m_ecdf_A_T2, measure, only_mean = FALSE)
-
 plot_data <- delta_observed
 
 
@@ -393,7 +372,6 @@ legend(x='bottomright', legend=c(bquote(paste(F[1]^{"*"}, ' (', .(beautify(m_eff
        col=c('blue','darkgreen'), lty=c(1,1), lwd=c(2,2))
 dev.off()
 
-
 pdf(file=paste0(output_path, '/need_for_Dexp_(', measure, ')2.pdf'), width=3, height=3, pointsize = 10)
 par(mar=c(4.2,4.2,1.9,0.4))
 plot(x=plot_data$X, y=delta_observed_top2$cdf_1_Y,
@@ -410,7 +388,6 @@ legend(x='bottomright', legend=c(bquote(paste(F[1]^{"*"}, ' (', .(beautify(m_eff
                                  expression(F[2])),
        col=c('blue','darkgreen'), lty=c(1,1), lwd=c(2,2))
 dev.off()
-
 
 pdf(file=paste0(output_path, '/need_for_Dexp_(', measure, ')3.pdf'), width=3, height=3, pointsize = 10)
 par(mar=c(4.2,4.2,1.9,0.4))
@@ -431,13 +408,12 @@ legend(x='bottomright', legend=c(bquote(paste(F[1])),
 dev.off()
 
 
+
 # ==============================================================================
 # Plots for Diagram 4
 # ==============================================================================
-
 source("R/utils.R")
 library(plotly)
-
 set.seed(8235238)
 output_path <- 'output/margins'
 dir.create(output_path, recursive = TRUE)
@@ -493,11 +469,7 @@ for (i in c(1,2)) {
   axis(1, lwd.tick=0)
   axis(2, lwd.tick=0)
   box(bty='L')
-  # legend(x='bottomright',  
-  #        legend = c(beautify(eff_T1[[1]]$model$type)), 
-  #        bty='n')
   dev.off()
-  
   
   emf(file=paste0(output_path, '/diag4_cdf_2__', measure, '_', beautify(eff_T1[[2]]$model$type), '_', i, '.emf'), width=1.2, height=1.2, pointsize = 10)
   par(mar=c(0.3,0.3,0.3,0.3))
@@ -512,11 +484,7 @@ for (i in c(1,2)) {
   axis(1, lwd.tick=0)
   axis(2, lwd.tick=0)
   box(bty='L')
-  # legend(x='bottomright',  
-  #        legend = c(beautify(eff_T1[[1]]$model$type)), 
-  #        bty='n')
   dev.off()
-  
   
   emf(file=paste0(output_path, '/diag4_cdf_3__', measure, '_', beautify(eff_T1[[3]]$model$type), '_', i, '.emf'), width=1.2, height=1.2, pointsize = 10)
   par(mar=c(0.3,0.3,0.3,0.3))
@@ -531,11 +499,7 @@ for (i in c(1,2)) {
   axis(1, lwd.tick=0)
   axis(2, lwd.tick=0)
   box(bty='L')
-  # legend(x='bottomright',  
-  #        legend = c(beautify(eff_T1[[1]]$model$type)), 
-  #        bty='n')
   dev.off()
-  
   
   emf(file=paste0(output_path, '/diag4_cdf_4__', measure, '_', beautify(eff_T1[[4]]$model$type), '_', i, '.emf'), width=1.2, height=1.2, pointsize = 10)
   par(mar=c(0.3,0.3,0.3,0.3))
@@ -550,11 +514,7 @@ for (i in c(1,2)) {
   axis(1, lwd.tick=0)
   axis(2, lwd.tick=0)
   box(bty='L')
-  # legend(x='bottomright',  
-  #        legend = c(beautify(eff_T1[[1]]$model$type)), 
-  #        bty='n')
   dev.off()
-  
   
   emf(file=paste0(output_path, '/diag4_ecdf_4__', measure, '_', i, '.emf'), width=1.2, height=1.2, pointsize = 10)
   par(mar=c(0.3,0.3,0.3,0.3))
@@ -567,9 +527,6 @@ for (i in c(1,2)) {
   axis(1, lwd.tick=0)
   axis(2, lwd.tick=0)
   box(bty='L')
-  # legend(x='bottomright',  
-  #        legend = c(beautify(eff_T1[[1]]$model$type)), 
-  #        bty='n')
   dev.off()
 }
 
@@ -601,11 +558,7 @@ axis(1, lwd.tick=0)
 axis(1, lwd.tick=0)
 axis(2, lwd.tick=0)
 box(bty='L')
-# legend(x='bottomright',  
-#        legend = c(beautify(eff_T1[[1]]$model$type)), 
-#        bty='n')
 dev.off()
-
 
 emf(file=paste0(output_path, '/diag4_cdf_2__', measure, '_', beautify(eff_T1[[2]]$model$type), '_', i, '.emf'), width=1.2, height=1.2, pointsize = 10)
 par(mar=c(0.3,0.3,0.3,0.3))
@@ -620,11 +573,7 @@ axis(1, lwd.tick=0)
 axis(1, lwd.tick=0)
 axis(2, lwd.tick=0)
 box(bty='L')
-# legend(x='bottomright',  
-#        legend = c(beautify(eff_T1[[1]]$model$type)), 
-#        bty='n')
 dev.off()
-
 
 emf(file=paste0(output_path, '/diag4_cdf_3__', measure, '_', beautify(eff_T1[[3]]$model$type), '_', i, '.emf'), width=1.2, height=1.2, pointsize = 10)
 par(mar=c(0.3,0.3,0.3,0.3))
@@ -639,11 +588,7 @@ axis(1, lwd.tick=0)
 axis(1, lwd.tick=0)
 axis(2, lwd.tick=0)
 box(bty='L')
-# legend(x='bottomright',  
-#        legend = c(beautify(eff_T1[[1]]$model$type)), 
-#        bty='n')
 dev.off()
-
 
 emf(file=paste0(output_path, '/diag4_cdf_4__', measure, '_', beautify(eff_T1[[4]]$model$type), '_', i, '.emf'), width=1.2, height=1.2, pointsize = 10)
 par(mar=c(0.3,0.3,0.3,0.3))
@@ -658,27 +603,8 @@ axis(1, lwd.tick=0)
 axis(1, lwd.tick=0)
 axis(2, lwd.tick=0)
 box(bty='L')
-# legend(x='bottomright',  
-#        legend = c(beautify(eff_T1[[1]]$model$type)), 
-#        bty='n')
 dev.off()
 
-
-# emf(file=paste0(output_path, '/diag4_ecdf_4__', measure, '_', i, '.emf'), width=1.2, height=1.2, pointsize = 10)
-# par(mar=c(0.3,0.3,0.3,0.3))
-# plot(x=X, y=ecdf_T2(X),
-#      xlab='', ylab='',
-#      type='l', xlim=c(0,1), ylim=c(0,1), xaxt = "n", yaxt = "n", lty=1, lwd=2, col='darkgreen', frame.plot = FALSE)
-# text(x=0.7, y=0.075, col='black',
-#      labels='Empirical')
-# axis(1, lwd.tick=0)
-# axis(1, lwd.tick=0)
-# axis(2, lwd.tick=0)
-# box(bty='L')
-# # legend(x='bottomright',  
-# #        legend = c(beautify(eff_T1[[1]]$model$type)), 
-# #        bty='n')
-# dev.off()
 
 
 # ==============================================================================
@@ -712,12 +638,9 @@ T2_data <- d[T2_data_indices]
 T_data <- d[-T2_data_indices]
 T1_data <- d[T1_data_indices]
 
-
-
 eff_T1 <- fit_all_margins(T1_data, measure)[[1]]
 eff_T2 <- fit_all_margins(T2_data, measure)[[1]]
 eff_T <- fit_all_margins(T_data, measure)[[1]]
-
 
 cdf_T1 <- function (X) { return(peff_2(X, eff_T1)) }
 cdf_T2 <- function (X) { return(peff_2(X, eff_T2)) }
@@ -726,12 +649,9 @@ ecdf_T1 <- function (X) { return(sapply(X, function(x) sum(T1_data <= x) / lengt
 ecdf_T2 <- function (X) { return(sapply(X, function(x) sum(T2_data <= x) / length(T2_data))) }
 ecdf_T <- function (X) { return(sapply(X, function(x) sum(T_data <= x) / length(T_data))) }
 
-
-
 delta_obs_t1 <- cdf_cdf_diff(cdf_T1, ecdf_T, measure, only_mean = FALSE)
 delta_obs_t2 <- cdf_cdf_diff(cdf_T2, ecdf_T, measure, only_mean = FALSE)
 delta_exp_t1 <- cdf_cdf_diff(ecdf_T1, ecdf_T, measure, only_mean = FALSE)
-
 
 size=1.4
 
@@ -822,9 +742,3 @@ axis(1, lwd.tick=0)
 axis(2, lwd.tick=0)
 box(bty='L')
 dev.off()
-
-
-
-
-
-
