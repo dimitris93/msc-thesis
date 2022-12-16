@@ -88,11 +88,24 @@ compute_results_df <- function(collections, measures, n_trials_per_measure, outp
 }
 
 
+# # Run this repeatedly and then combine results to one dataframe
+# compute_results_df(collections = c("adhoc5", "adhoc6", "adhoc7", "adhoc8", "web2010", "web2011", "web2012", "web2013"),
+#                    measures =  c("ap", "p10", "rr", "ndcg20", "err20"),
+#                    n_trials_per_measure = 1250,
+#                    output_path = 'output/margins',
+#                    sort_by_criterion = "AIC",
+#                    compute_splithalf_criterion = TRUE,
+#                    N_TRIALS = 10)
+
+
+# # Combine to one dataframe
+# combine_results_df('output/margins/results_splithalf_trials=1250.csv')
+
+
+
 # ============================= Plot results =============================
 n_total_splits = 250000
 output_path = 'output/margins'
-
-# plot_results <- function(n_trials, output_path) {
 df <- import(paste0(output_path, '/results_splithalf_n', n_total_splits, '.csv'))
 
 # Rename some columns
@@ -182,13 +195,6 @@ df$GoF_RAND <- -(df$best_delta_observed_RAND - df$delta_expected) / df$delta_exp
 # =============== Theoretical Best model (according to lowest Delta observed) ===============
 df$best_model_name_ACTUAL <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[order(x$delta_observed)[[1]]]]))
 df$best_delta_observed_ACTUAL <- apply(df, 1, function(x) x$delta_observed[[order(x$delta_observed)[[1]]]])
-df$GoF_ACTUAL <- -(df$best_delta_observed_ACTUAL - df$delta_expected) / df$delta_expected
-
-# =============== Theoretical Best model, except Beta KS (according to lowest Delta observed) ===============
-# df$best_model_name_ACTUAL_no_bks_bestindex <- apply(df, 1, function(x) if (x$model_names[[order(x$delta_observed, decreasing)[[1]]]] =='bks') order(x$delta_observed, decreasing)[[2]] else order(x$delta_observed, decreasing)[[1]])
-# df$best_model_name_ACTUAL_no_bks <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[x$best_model_name_ACTUAL_no_bks_bestindex[[1]]]]))
-# df$best_delta_observed_ACTUAL_no_bks <- apply(df, 1, function(x) x$delta_observed[[x$best_model_name_ACTUAL_no_bks_bestindex[[1]]]])
-# df$GoF_ACTUAL_no_bks <- -(df$best_delta_observed_ACTUAL_no_bks - df$delta_expected) / df$delta_expected
 
 # =============== Theoretical worst model (according to highest Delta observed) ===============
 df$best_model_name_WORST <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[order(x$delta_observed, decreasing = TRUE)[[1]]]]))
@@ -317,7 +323,6 @@ contour(cop_3, drawlabels = FALSE, col = 'darkgreen', add = TRUE)
 legend(x='topleft', bty = "n", col = c('darkgreen'), lwd = 1, legend = c(cop_3$familyname))
 dev.off()
 
-
 # # testing "coupled with standard norm"
 # c_pdf_1 <- function (x, y) { return(BiCopPDF(x, y, cop_1)) }
 # xy_range_actual <- seq(-3, 3, length.out = n)
@@ -331,64 +336,6 @@ dev.off()
 #         z = c_PDF_vals_on_pseudo*tcrossprod(dnorm(xy_range_actual)))
 # 
 # plot_ly(x=xy_range_actual, y=xy_range_actual, z=c_PDF_vals_on_pseudo*tcrossprod(dnorm(xy_range_actual)), type = "contour")
-
-
-# # 3D
-# fnt1 <- list(family = "Arial", size = 25)
-# fnt2 <- list(family = "Arial", size = 15)
-# p_1_sample <- plot_ly(width=1000, height=1000, showscale=F, showlegend=T) %>%
-#   # config(mathjax = 'cdn')  %>%
-#   add_trace(x=c_cdf_data_1$x, y=c_cdf_data_1$y, z=c_cdf_data_1$z, intensity=c_cdf_data_1$z, name=cop_1$familyname,
-#             type="mesh3d", opacity=0.8, colorscale = list(c(0,1),c("red","red"))) %>%
-#   add_trace(x=c_cdf_data_2$x, y=c_cdf_data_2$y, z=c_cdf_data_2$z, intensity=c_cdf_data_2$z, name=cop_2$familyname,
-#             type="mesh3d", opacity=1, colorscale = list(c(0,1),c("blue","blue"))) %>%
-#   add_trace(x=ecdf_data$x, y=ecdf_data$y, z=ecdf_data$z, intensity=ecdf_data$z, name='Empirical',
-#             type="mesh3d", opacity=0.8, colorscale = list(c(0,1),c("darkgrey","darkgrey"))) %>%
-#   # add_markers(x=ecdf_data$x, y=ecdf_data$y, z=ecdf_data$z,   name='',
-#   #             opacity=1, marker=list(size=1, color='darkgrey')) %>%
-#   layout(scene = list(xaxis=list(title=list(text='System 52', font=fnt1, standoff = 150), showticklabels = T, tickfont = fnt2),
-#                       yaxis=list(title=list(text='System 29', font=fnt1), showticklabels = T, tickfont = fnt2),
-#                       zaxis=list(title=list(text='Cumulative Probability', font=fnt1), showticklabels = T, tickfont = fnt2),
-#                       camera=list(eye = list(x = 4, y = 1.25, z = 1.25))))
-# # layout(scene = list(xaxis=list(title=list(text='System 52'), showticklabels = T),
-# #                     yaxis=list(title=list(text='System 29'), showticklabels = T),
-# #                     zaxis=list(title=list(text='Cumulative Probability'), showticklabels = T),
-# #                     camera=list(eye = list(x = 4, y = 1.25, z = 1.25)))) 
-# print(p_1_sample)
-
-
-# # Attempt to use rgl, etc...
-# dir.create('output/3d-copula-plots', recursive = TRUE)
-# write.csv(c_cdf_data_1,'output/3d-copula-plots/vis-comp-joe.csv')
-# write.csv(c_cdf_data_2,'output/3d-copula-plots/vis-comp-gaus.csv')
-# write.csv(ecdf_data,'output/3d-copula-plots/vis-comp-ecdf.csv')
-# 
-# library(orientlib)
-# library(rgl)
-# open3d()
-# view3d(theta = -45, phi = 25)
-# axes3d( edges=c("x--", "y--", "z-+") )
-# # axis3d('x', pos = c(0, 0, 0))
-# persp3d(x=xy_range, y=xy_range, z=Z_1, alpha=0.5,
-#       main="Perspective Plot of a Cone",
-#       zlab = "Height",
-#       col = "red", shade = 0.001, add = TRUE, axes=FALSE)
-# persp3d(x=xy_range, y=xy_range, z=Z_1, alpha=0.5,
-#         front = "lines", back = "lines", 
-#         lit = FALSE, add = TRUE, axes=FALSE)
-# persp3d(x=xy_range, y=xy_range, z=Z_2,
-#         main="Perspective Plot of a Cone",
-#         zlab = "Height",
-#         col = "blue", shade = 0.001, add = TRUE, axes=FALSE)
-# persp3d(x=xy_range, y=xy_range, z=Z_2, 
-#         front = "lines", back = "lines", 
-#         lit = FALSE, add = TRUE, axes=FALSE)
-# # title3d('', '', 'X', 'Y')
-# mtext3d("X", "x--", line=6, dist=2)
-# mtext3d("Y", "y--", line=6)
-# mtext3d("Z", "z-+", line=4)
-#
-# rglToBase(par3d(no.readonly=TRUE)$userMatrix)
 
 
 # ---------- Plot 1 - (observed, expected) [Best AIC] ----------
@@ -505,8 +452,6 @@ mean_df2[,'topics'] <- 50
 
 df5 <- rbind(mean_df, mean_df2)
 
-nrow(filter(df2, measure=='AP'))
-
 print(filter(df5, best_model_name_AIC=='Beta KS'))
 
 
@@ -545,7 +490,6 @@ p <- ggplot() +
   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
   guides(colour = guide_legend(byrow = TRUE, override.aes = list(shape = my_shapes, linetype = my_lines))) +
   labs(y = bquote(paste('')), x = bquote(Delta[obs])) +
-  # scale_x_continuous(limits = c(-1.6, 0.3), breaks =  seq(-1.5, 0, 0.5), oob = scales::oob_keep) +
   scale_y_discrete(limits=rev) +
   theme(legend.position = "right",
         plot.margin = margin(1.15, -16, 0, -1, "mm"),
@@ -592,7 +536,6 @@ p <- ggplot() +
   guides(colour = guide_legend(byrow = TRUE, override.aes = list(shape = my_shapes, linetype = my_lines))) +
   facet_grid(measure~., scale = "free", space= "free") +
   labs(y = bquote(paste('Alternative model')), x = bquote(Delta[obs])) +
-  # scale_x_continuous(limits = c(-1.6, 0.3), breaks =  seq(-1.5, 0, 0.5), oob = scales::oob_keep) +
   theme(legend.position = "right",
         plot.margin = margin(1, -16, 0, 1, "mm"),
         legend.margin = margin(-10, 0, 0, 0),
@@ -650,7 +593,6 @@ p1 <- ggplot() +
         legend.direction = 'vertical',
         plot.margin = margin(1.5, 1.5, 1.5, 1.5, "mm"),
         legend.margin = margin(-15, 0, 0, 0),
-        # legend.box.margin = margin(-25, 0, 15, 0),
         legend.text = element_text(size = 11))
 print(p1)
 dev.off()
@@ -818,7 +760,6 @@ p <- ggplot() +
   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
   guides(colour = guide_legend(override.aes = list(shape = my_shapes))) +
   labs(y= '', x = bquote('Percentage of zeros in the data')) +
-  # scale_x_continuous(limits = c(-0.5, 0.2), breaks =  seq(-0.5, 0.2, 0.25), oob = scales::oob_keep) +
   theme(plot.margin = margin(1, 4.5, 1.5, -3.5, "mm"),
         axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5),
         legend.text = element_text(size = 11),
@@ -838,7 +779,6 @@ p2 <- ggplot() +
   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
   guides(colour = guide_legend(override.aes = list(shape = my_shapes))) +
   labs(y= '', x = bquote('Best-case ' ~ Delta[obs])) +
-  # scale_x_continuous(limits = c(-0.45, 0.175), breaks =  seq(-0.5, 0.2, 0.1), oob = scales::oob_keep) +
   theme(plot.margin = margin(1, 4.5, 1.5, -3.5, "mm"),
         axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5),
         legend.text = element_text(size = 11),
@@ -857,7 +797,6 @@ p3 <- ggplot() +
   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
   guides(colour = guide_legend(override.aes = list(shape = my_shapes))) +
   labs(y= '', x = bquote('Best-case GoF')) +
-  # scale_x_continuous(limits = c(-0.45, 0.175), breaks =  seq(-0.5, 0.2, 0.1), oob = scales::oob_keep) +
   theme(plot.margin = margin(1, 4.5, 1.5, -3.5, "mm"),
         axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5),
         legend.text = element_text(size = 11),
@@ -905,7 +844,6 @@ p <- ggplot() +
   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
   guides(colour = guide_legend(override.aes = list(shape = my_shapes))) +
   labs(y= '', x = bquote(Delta[obs])) +
-  # scale_x_continuous(limits = c(-0.45, 0.175), breaks =  seq(-0.5, 0.2, 0.1), oob = scales::oob_keep) +
   theme(plot.margin = margin(1, -1, 0, -3.5, "mm"),
         axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5),
         legend.text = element_text(size = 11))
@@ -942,7 +880,6 @@ p <- ggplot() +
   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
   guides(colour = guide_legend(override.aes = list(shape = my_shapes))) +
   labs(y= '', x = 'GoF') +
-  # scale_x_continuous(limits = c(-0.45, 0.175), breaks =  seq(-0.5, 0.2, 0.1), oob = scales::oob_keep) +
   theme(plot.margin = margin(1, 1, 0, -3.5, "mm"),
         axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5),
         legend.text = element_text(size = 11),
@@ -1146,8 +1083,6 @@ p <- ggplot() +
 
 
 # ---------- Plot a1, a2 - Correlate zeros with Dobs, GoF ---------
-# df <- sample_n(df, 2000)
-  
 df2 <- filter(df, T1_data_count_zeros <13)
 df2$T1_data_count_zeros <-
   factor(df2$T1_data_count_zeros,
@@ -1170,7 +1105,6 @@ p <- ggplot() +
   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
   guides(colour = guide_legend(override.aes = list(shape = my_shapes))) +
   labs(y= 'Number of zeros in the data', x = '') +
-  # scale_x_continuous(limits = c(-0, 0.084), breaks =  c(0, 0.02, 0.04, 0.06, 0.08), oob = scales::oob_keep) +
   theme(legend.position = "bottom",
         plot.margin = margin(1.5, 1.5, -0.5, 1.5, "mm"),
         legend.margin = margin(0, 0, 0, 0),
@@ -1192,7 +1126,6 @@ p <- ggplot() +
   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
   guides(colour = guide_legend(override.aes = list(shape = my_shapes))) +
   labs(y= 'Number of zeros in the data', x = '') +
-  # scale_x_continuous(limits = c(-0, 0.084), breaks =  c(0, 0.02, 0.04, 0.06, 0.08), oob = scales::oob_keep) +
   theme(legend.position = "bottom",
         plot.margin = margin(1.5, 1.5, -0.5, 1.5, "mm"),
         legend.margin = margin(0, 0, 0, 0),
@@ -1200,15 +1133,3 @@ p <- ggplot() +
         legend.text = element_text(size = 11))
 print(p)
 dev.off()
-
-# # Run this repeatedly and then combine results to one dataframe
-# compute_results_df(collections = c("adhoc5", "adhoc6", "adhoc7", "adhoc8", "web2010", "web2011", "web2012", "web2013"),
-#                    measures =  c("ap", "p10", "rr", "ndcg20", "err20"),
-#                    n_trials_per_measure = 1250,
-#                    output_path = 'output/margins',
-#                    sort_by_criterion = "AIC",
-#                    compute_splithalf_criterion = TRUE,
-#                    N_TRIALS = 10)
-
-# # Combine to one dataframe
-# combine_results_df('output/margins/results_splithalf_trials=1250.csv')

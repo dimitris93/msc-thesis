@@ -120,11 +120,24 @@ compute_results_df <- function(collections, measures, n_trials_per_measure, outp
 }
 
 
+# # Run this repeatedly and then combine results to one dataframe
+# compute_results_df(collections = c("adhoc5", "adhoc6", "adhoc7", "adhoc8", "web2010", "web2011", "web2012", "web2013"),
+#                    measures =  c("ap", "p10", "rr", "ndcg20", "err20"),
+#                    n_trials_per_measure = 500,
+#                    output_path = 'output/copulas',
+#                    sort_by_criterion = "AIC",
+#                    compute_splithalf_criterion = TRUE,
+#                    N_TRIALS = 10)
+
+
+# # Combine to one dataframe
+# combine_results_df('output/copulas/results_splithalf_trials=1000.csv')
+
+
+
 # ============================= Plot results =============================
 n_total_splits = 250000
 output_path = 'output/copulas'
-
-# plot_results <- function(n_trials, output_path) {
 df <- import(paste0(output_path, '/results_splithalf_n', n_total_splits, '.csv'))
 
 # Rename some columns
@@ -158,20 +171,10 @@ df$s2_T1_data_perc_zeros <- sapply(df$s2_T1_data, function(x) length(which(x==0)
 df$s1_T2_data_perc_zeros <- sapply(df$s1_T2_data, function(x) length(which(x==0))/length(x))
 df$s2_T2_data_perc_zeros <- sapply(df$s2_T2_data, function(x) length(which(x==0))/length(x))
 
-is_BB1_or_BB6 <- c('BB1', 'Survival BB1', 'Rotated BB1 90 degrees', 'Rotated BB1 180 degrees', 'Rotated BB1 270 degrees',
-                   'BB6', 'Survival BB6', 'Rotated BB6 90 degrees', 'Rotated BB6 180 degrees', 'Rotated BB6 270 degrees')
-
-
 # ================= Best AIC ==================
 df$best_model_name_AIC <- recode_and_reorder(sapply(df$model_names, function(x) x[[1]])) # 1st model is the best fit based on AIC
 df$best_delta_observed_AIC <- sapply(df$delta_observed, function(x) x[[1]]) # 1st model is the best fit based on AIC
 df$GoF_AIC <- -(df$best_delta_observed_AIC - df$delta_expected) / df$delta_expected
-
-# ================= Best AIC, except BB1, 6 ==================
-df$best_model_name_AIC_no_bb1_6_bestindex <- sapply(df$model_names, function(x) which(!x %in% is_BB1_or_BB6)[[1]])
-df$best_model_name_AIC_no_bb1_6  <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[x$best_model_name_AIC_no_bb1_6_bestindex[[1]]]]))
-df$best_delta_observed_AIC_no_bb1_6  <- apply(df, 1, function(x) x$delta_observed[[x$best_model_name_AIC_no_bb1_6_bestindex[[1]]]])
-df$GoF_AIC_no_bb1_6  <- -(df$best_delta_observed_AIC_no_bb1_6  - df$delta_expected) / df$delta_expected
 
 # ================= 2nd best AIC ==================
 df$top2_model_name_AIC <- recode_and_reorder(sapply(df$model_names, function(x) get_i(x, 2))) # 2nd model is the top-2 fit based on AIC
@@ -188,33 +191,15 @@ df$best_model_name_SHC <- recode_and_reorder(apply(df, 1, function(x) x$model_na
 df$best_delta_observed_SHC <- apply(df, 1, function(x) x$delta_observed[[order(x$SHC)[[1]]]])
 df$GoF_SHC <- -(df$best_delta_observed_SHC - df$delta_expected) / df$delta_expected
 
-# ================= Best SHC, except BB1, 6 ==================
-df$best_model_name_SHC_no_bb1_6_bestindex <- apply(df, 1, function(x) { ord <- order(x$SHC);  ord[!ord %in% which(x$model_names %in% is_BB1_or_BB6)][[1]] })
-df$best_model_name_SHC_no_bb1_6  <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[x$best_model_name_SHC_no_bb1_6_bestindex[[1]]]]))
-df$best_delta_observed_SHC_no_bb1_6  <- apply(df, 1, function(x) x$delta_observed[[x$best_model_name_SHC_no_bb1_6_bestindex[[1]]]])
-df$GoF_SHC_no_bb1_6  <- -(df$best_delta_observed_SHC_no_bb1_6  - df$delta_expected) / df$delta_expected
-
 # ================= Best BIC ==================
 df$best_model_name_BIC <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[order(x$BIC)[[1]]]]))
 df$best_delta_observed_BIC <- apply(df, 1, function(x) x$delta_observed[[order(x$BIC)[[1]]]])
 df$GoF_BIC <- -(df$best_delta_observed_BIC - df$delta_expected) / df$delta_expected
 
-# ================= Best BIC, except BB1, 6 ==================
-df$best_model_name_BIC_no_bb1_6_bestindex <- apply(df, 1, function(x) { ord <- order(x$BIC);  ord[!ord %in% which(x$model_names %in% is_BB1_or_BB6)][[1]] })
-df$best_model_name_BIC_no_bb1_6  <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[x$best_model_name_BIC_no_bb1_6_bestindex[[1]]]]))
-df$best_delta_observed_BIC_no_bb1_6  <- apply(df, 1, function(x) x$delta_observed[[x$best_model_name_BIC_no_bb1_6_bestindex[[1]]]])
-df$GoF_BIC_no_bb1_6  <- -(df$best_delta_observed_BIC_no_bb1_6  - df$delta_expected) / df$delta_expected
-
 # ================= Best LL ==================
 df$best_model_name_LL <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[order(x$LL, decreasing = TRUE)[[1]]]]))
 df$best_delta_observed_LL <- apply(df, 1, function(x) x$delta_observed[[order(x$LL, decreasing = TRUE)[[1]]]])
 df$GoF_LL <- -(df$best_delta_observed_LL - df$delta_expected) / df$delta_expected
-
-# ================= Best LL, except BB1, 6 ==================
-df$best_model_name_LL_no_bb1_6_bestindex <- apply(df, 1, function(x) { ord <- order(x$LL, decreasing = T);  ord[!ord %in% which(x$model_names %in% is_BB1_or_BB6)][[1]] })
-df$best_model_name_LL_no_bb1_6  <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[x$best_model_name_LL_no_bb1_6_bestindex[[1]]]]))
-df$best_delta_observed_LL_no_bb1_6  <- apply(df, 1, function(x) x$delta_observed[[x$best_model_name_LL_no_bb1_6_bestindex[[1]]]])
-df$GoF_LL_no_bb1_6  <- -(df$best_delta_observed_LL_no_bb1_6  - df$delta_expected) / df$delta_expected
 
 # =============== Random model ===============
 df$best_model_name_RAND <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[x$random_model_order[[1]]]]))
@@ -613,17 +598,3 @@ corrplot(m2,        # Correlation matrix
          mar = c(0, 2, 2, 0)) 
 title(ylab = "Model selected by AIC")
 dev.off()
-
-
-
-# # Run this repeatedly and then combine results to one dataframe
-# compute_results_df(collections = c("adhoc5", "adhoc6", "adhoc7", "adhoc8", "web2010", "web2011", "web2012", "web2013"),
-#                    measures =  c("ap", "p10", "rr", "ndcg20", "err20"),
-#                    n_trials_per_measure = 500,
-#                    output_path = 'output/copulas',
-#                    sort_by_criterion = "AIC",
-#                    compute_splithalf_criterion = TRUE,
-#                    N_TRIALS = 10)
-
-# # Combine to one dataframe
-# combine_results_df('output/copulas/results_splithalf_trials=1000.csv')

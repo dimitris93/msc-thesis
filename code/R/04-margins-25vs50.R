@@ -124,19 +124,31 @@ compute_results_df <- function(collections, measures, n_trials_per_measure, spli
 }
 
 
+# # Run this repeatedly and then combine results to one dataframe
+# compute_results_df(split_n = c(25,50),
+#                    collections = c("terabyte2006"),
+#                    measures =  c("ap", "p10", "rr"),
+#                    n_trials_per_measure = 1000,
+#                    output_path = 'output/margins',
+#                    sort_by_criterion = "AIC",
+#                    compute_splithalf_criterion = TRUE,
+#                    N_TRIALS = 10)
+
+
+# # Combine to one dataframe
+# combine_results_df('output/margins/results_extrapolate_trials=1000.csv')
+
+
+
 # ============================= Plot results ============================= 
 n_total_splits = 150000
 output_path = 'output/margins'
 split_n = c(25, 50) # plot '25-25 split vs 50-50 split'
-
-
-# plot_results(n_trials_per_measure, split_n = c(25, 50), output_path = 'output/margins')
 df <- import(paste0(output_path, '/results_extrapolate_n', n_total_splits, '.csv'))
 
 # Rename some columns
 colnames(df)[colnames(df) == 'splithalf_criterion_t1'] <- 'SHC_t1'
 colnames(df)[colnames(df) == 'logLik_t1'] <- 'LL_t1'
-
 colnames(df)[colnames(df) == 'splithalf_criterion_t2'] <- 'SHC_t2'
 colnames(df)[colnames(df) == 'logLik_t2'] <- 'LL_t2'
 
@@ -368,8 +380,6 @@ for(measure in measures) {
           axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5),
           legend.text = element_text(size = 11),
           legend.position = legend_pos)
-  # print(p)
-  # dev.off()
   
   tg <- ggplotGrob(p)
   tg <- add_text_strip_to_the_right(tg, 'Best model (AIC) fitted on 25 topics')
@@ -487,18 +497,3 @@ p <- ggplot() +
         legend.text = element_text(size = 11))
 print(p)
 dev.off()
-
-
-
-# # Run this repeatedly and then combine results to one dataframe
-# compute_results_df(split_n = c(25,50),
-#                    collections = c("terabyte2006"),
-#                    measures =  c("ap", "p10", "rr"),
-#                    n_trials_per_measure = 1000,
-#                    output_path = 'output/margins',
-#                    sort_by_criterion = "AIC",
-#                    compute_splithalf_criterion = TRUE,
-#                    N_TRIALS = 10)
-
-# # Combine to one dataframe
-# combine_results_df('output/margins/results_extrapolate_trials=1000.csv')

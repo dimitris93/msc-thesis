@@ -167,19 +167,31 @@ compute_results_df <- function(collections, measures, n_trials_per_measure, spli
 }
 
 
+# # Run this repeatedly and then combine results to one dataframe
+# compute_results_df(split_n = c(25,50),
+#                    collections = c("terabyte2006"),
+#                    measures =  c("ap", "p10", "rr"),
+#                    n_trials_per_measure = 500,
+#                    output_path = 'output/copulas',
+#                    sort_by_criterion = "AIC",
+#                    compute_splithalf_criterion = TRUE,
+#                    N_TRIALS = 10)
+
+
+# # Combine to one dataframe
+# combine_results_df('output/copulas/results_extrapolate_trials=500.csv')
+
+
+
 # ============================= Plot results =============================
 n_total_splits = 150000
 output_path = 'output/copulas'
 split_n = c(25, 50) # plot '25-25 split vs 50-50 split'
-
-
-# plot_results(n_trials_per_measure, split_n = c(25, 50), output_path = 'output/margins')
 df <- import(paste0(output_path, '/results_extrapolate_n', n_total_splits, '.csv'))
 
 # Rename some columns
 colnames(df)[colnames(df) == 'splithalf_criterion_t1'] <- 'SHC_t1'
 colnames(df)[colnames(df) == 'logLik_t1'] <- 'LL_t1'
-
 colnames(df)[colnames(df) == 'splithalf_criterion_t2'] <- 'SHC_t2'
 colnames(df)[colnames(df) == 'logLik_t2'] <- 'LL_t2'
 
@@ -207,20 +219,8 @@ collections <- c("terabyte2006")
 measures <- c("ap", "p10", "rr")
 df$collection <- 'terabyte2006'
 dat <- read_evaluation_data(measures, collections, 0.1)
-# df$T1_data <- apply(df, 1, function(x) return(list(dat[[x$measure]][[x$collection]][[x$run]][x$T1_data_indices])))
-# df$T1_data <- lapply(df$T1_data, function (x) unlist(x, use.names = F))
-# df$T2_data <- apply(df, 1, function(x) return(list(dat[[x$measure]][[x$collection]][[x$run]][x$T2_data_indices])))
-# df$T2_data <- lapply(df$T2_data, function (x) unlist(x, use.names = F))
-# df$T_data <- apply(df, 1, function(x) return(list(dat[[x$measure]][[x$collection]][[x$run]][-x$T2_data_indices])))
-# df$T_data <- lapply(df$T_data, function (x) unlist(x, use.names = F))
 df$m <- df$measure
 df$measure <- recode_and_reorder(df$measure) # do this after the calculation of T1_data
-# df$T1_data_perc_zeros <- sapply(df$T1_data, function(x) length(which(x==0))/length(x))
-# df$T1_data_count_zeros <- sapply(df$T1_data, function(x) length(which(x==0)))
-# df$T2_data_perc_zeros <- sapply(df$T2_data, function(x) length(which(x==0))/length(x))
-# df$T2_data_count_zeros <- sapply(df$T2_data, function(x) length(which(x==0)))
-# df$T_data_perc_zeros <- sapply(df$T_data, function(x) length(which(x==0))/length(x))
-# df$T_data_count_zeros <- sapply(df$T_data, function(x) length(which(x==0)))
 
 ######################################
 ################   T1 ################
@@ -239,12 +239,6 @@ df$GoF_SHC_t1 <- -(df$best_delta_observed_SHC_t1 - df$delta_expected_t1) / df$de
 df$best_model_name_BIC_t1 <- recode_and_reorder(apply(df, 1, function(x) x$model_names_t1[[order(x$BIC_t1)[[1]]]]))
 df$best_delta_observed_BIC_t1 <- apply(df, 1, function(x) x$delta_observed_t1[[order(x$BIC_t1)[[1]]]])
 df$GoF_BIC_t1 <- -(df$best_delta_observed_BIC_t1 - df$delta_expected_t1) / df$delta_expected_t1
-
-# ================= Best BIC, except beta ks ==================
-df$best_model_name_BIC_no_bks_bestindex_t1 <- apply(df, 1, function(x) if (x$model_names_t1[[order(x$BIC_t1)[[1]]]] =='bks') order(x$BIC_t1)[[2]] else order(x$BIC_t1)[[1]])
-df$best_model_name_BIC_no_bks_t1 <- recode_and_reorder(apply(df, 1, function(x) x$model_names_t1[[x$best_model_name_BIC_no_bks_bestindex_t1[[1]]]]))
-df$best_delta_observed_BIC_no_bks_t1 <- apply(df, 1, function(x) x$delta_observed_t1[[x$best_model_name_BIC_no_bks_bestindex_t1[[1]]]])
-df$GoF_BIC_no_bks_t1 <- -(df$best_delta_observed_BIC_no_bks_t1 - df$delta_expected_t1) / df$delta_expected_t1
 
 # ================= Best LL ==================
 df$best_model_name_LL_t1 <- recode_and_reorder(apply(df, 1, function(x) x$model_names_t1[[order(x$LL_t1, decreasing = TRUE)[[1]]]]))
@@ -270,7 +264,6 @@ df$GoF_WORST_t1 <- -(df$best_delta_observed_WORST_t1 - df$delta_expected_t1) / d
 #####################################
 ################  T2 ################
 #####################################
-
 # ================= Best AIC ==================
 df$best_model_name_AIC_t2 <- recode_and_reorder(sapply(df$model_names_t2, function(x) x[[1]])) # 1st model is the best fit based on AIC
 df$best_delta_observed_AIC_t2 <- sapply(df$delta_observed_t2, function(x) x[[1]]) # 1st model is the best fit based on AIC
@@ -305,11 +298,6 @@ df$GoF_ACTUAL_t2 <- -(df$best_delta_observed_ACTUAL_t2 - df$delta_expected_t2) /
 df$best_model_name_WORST_t2 <- recode_and_reorder(apply(df, 1, function(x) x$model_names_t2[[order(x$delta_observed_t2, decreasing = TRUE)[[1]]]]))
 df$best_delta_observed_WORST_t2 <- apply(df, 1, function(x) x$delta_observed_t2[[order(x$delta_observed_t2, decreasing = TRUE)[[1]]]])
 df$GoF_WORST_t2 <- -(df$best_delta_observed_WORST_t2 - df$delta_expected_t2) / df$delta_expected_t2
-
-
-#   df$delta_expected_t1
-# nrow(filter(df, GoF_AIC_t1==Inf))
-# nrow(filter(df, !delta_expected_t2>0.001))
 
 
 
@@ -376,99 +364,3 @@ mean_df <- filter(df, best_model_name_AIC_t1=='Beta KS') %>%
   group_by(measure) %>%
   summarise(dobs_51 = mean((best_delta_observed_AIC_t2 - best_delta_observed_AIC_t1) / best_delta_observed_AIC_t1))
 mean_df
-# 
-# 
-# # ---------- Fig 2 -----------
-# pdf(paste0(output_path, '/extrapolate_n', nrow(df), '_fig2.pdf'), width=3, height=4.65)
-# my_colors <- c('blue', 'red', 'black')
-# my_shapes <- list(16, 8, '')
-# my_lines <- c('solid', 'solid', 'solid')
-# my_labels <- c(bquote(Delta[obs]^{'25'}), bquote(Delta[obs]^{'50'}), bquote(Delta[exp]^{'25'}))
-# 
-# mean_df <- df %>%
-#   group_by(measure) %>%
-#   summarise(mean_val = mean(delta_expected_t1))
-# 
-# p <- ggplot() +
-#   geom_vline(data=df, aes(xintercept=0), linetype = "dashed") +
-#   
-#   # T1
-#   geom_point(data=df, aes(x=best_delta_observed_AIC_t1, y='AIC', color=my_colors[1]), 
-#              shape=my_shapes[1], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_AIC_t1, y='AIC', color=my_colors[1]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   geom_point(data=df, aes(x=best_delta_observed_BIC_t1, y='BIC', color=my_colors[1]), 
-#              shape=my_shapes[1], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_BIC_t1, y='BIC', color=my_colors[1]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   geom_point(data=df, aes(x=best_delta_observed_LL_t1, y='LL', color=my_colors[1]), 
-#              shape=my_shapes[1], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_LL_t1, y='LL', color=my_colors[1]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   geom_point(data=df, aes(x=best_delta_observed_SHC_t1, y='SHC', color=my_colors[1]), 
-#              shape=my_shapes[1], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_SHC_t1, y='SHC', color=my_colors[1]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   geom_point(data=df, aes(x=best_delta_observed_ACTUAL_t1, y='Best-case', color=my_colors[1]), 
-#              shape=my_shapes[1], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_ACTUAL_t1, y='Best-case', color=my_colors[1]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   # T2 
-#   geom_point(data=df, aes(x=best_delta_observed_AIC_t2, y='AIC', color=my_colors[2]), 
-#              shape=my_shapes[2], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_AIC_t2, y='AIC', color=my_colors[2]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   geom_point(data=df, aes(x=best_delta_observed_BIC_t2, y='BIC', color=my_colors[2]), 
-#              shape=my_shapes[2], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_BIC_t2, y='BIC', color=my_colors[2]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   geom_point(data=df, aes(x=best_delta_observed_LL_t2, y='LL', color=my_colors[2]), 
-#              shape=my_shapes[2], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_LL_t2, y='LL', color=my_colors[2]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   geom_point(data=df, aes(x=best_delta_observed_SHC_t2, y='SHC', color=my_colors[2]), 
-#              shape=my_shapes[2], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_SHC_t2, y='SHC', color=my_colors[2]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   geom_point(data=df, aes(x=best_delta_observed_ACTUAL_t2, y='Best-case', color=my_colors[2]), 
-#              shape=my_shapes[2], stat="summary", fun="mean") +
-#   geom_linerange(data=df,aes(x=best_delta_observed_ACTUAL_t2, y='Best-case', color=my_colors[2]), 
-#                  stat="summary", fun.data="mean_cl_boot", fun.args=list(conf.int=.95)) +
-#   
-#   # exp T1
-#   geom_vline(data=mean_df, aes(xintercept=mean_val, color=my_colors[3]), linetype = 'solid') +
-#   
-#   scale_color_identity(name = "", guide = "legend", breaks = my_colors, labels = my_labels) +
-#   guides(colour = guide_legend(override.aes = list(shape = my_shapes))) +
-#   facet_grid(measure~., space = "free", scale = "free") +
-#   labs(y= '', x = '') +
-#   theme(legend.position = "bottom",
-#         plot.margin = margin(1.5, 1.5, -0.5, 1.5, "mm"),
-#         legend.margin = margin(0, 0, 0, 0),
-#         legend.box.margin = margin(-10, 0, 5, 0),
-#         legend.text = element_text(size = 11))
-# print(p)
-# dev.off()
-
-
-
-# # Run this repeatedly and then combine results to one dataframe
-# compute_results_df(split_n = c(25,50),
-#                    collections = c("terabyte2006"),
-#                    measures =  c("ap", "p10", "rr"),
-#                    n_trials_per_measure = 500,
-#                    output_path = 'output/copulas',
-#                    sort_by_criterion = "AIC",
-#                    compute_splithalf_criterion = TRUE,
-#                    N_TRIALS = 10)
-
-# # Combine to one dataframe
-# combine_results_df('output/copulas/results_extrapolate_trials=500.csv')
