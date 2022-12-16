@@ -10,11 +10,11 @@
 # Use this simple command to check that your sbatch settings are working
 /usr/bin/scontrol show job -d "$SLURM_JOB_ID"
 
-# srun Rscript --vanilla R/02-margins-split_half.R
+# Run the scripts like so:
+# srun Rscript --vanilla R/03-margins-split_half.R
 # srun Rscript --vanilla R/04-margins-25vs50.R
 # srun Rscript --vanilla R/06-copulas-split_half.R
 # srun Rscript --vanilla R/07-copulas-25vs50.R
-srun Rscript --vanilla R/08-estimate_n_for_SHC.R
 
 
 
