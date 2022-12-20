@@ -171,6 +171,9 @@ df$s2_T1_data_perc_zeros <- sapply(df$s2_T1_data, function(x) length(which(x==0)
 df$s1_T2_data_perc_zeros <- sapply(df$s1_T2_data, function(x) length(which(x==0))/length(x))
 df$s2_T2_data_perc_zeros <- sapply(df$s2_T2_data, function(x) length(which(x==0))/length(x))
 
+is_BB1_or_BB6 <- c('BB1', 'Survival BB1', 'Rotated BB1 90 degrees', 'Rotated BB1 180 degrees', 'Rotated BB1 270 degrees',
+                   'BB6', 'Survival BB6', 'Rotated BB6 90 degrees', 'Rotated BB6 180 degrees', 'Rotated BB6 270 degrees')
+
 # ================= Best AIC ==================
 df$best_model_name_AIC <- recode_and_reorder(sapply(df$model_names, function(x) x[[1]])) # 1st model is the best fit based on AIC
 df$best_delta_observed_AIC <- sapply(df$delta_observed, function(x) x[[1]]) # 1st model is the best fit based on AIC
@@ -185,6 +188,12 @@ df$GoF_top2_AIC <- -(df$top2_delta_observed_AIC - df$delta_expected) / df$delta_
 df$top3_model_name_AIC <- recode_and_reorder(sapply(df$model_names, function(x) get_i(x, 3))) # 3rd model is the top-3 fit based on AIC
 df$top3_delta_observed_AIC <- sapply(df$delta_observed, function(x) get_i(x, 3)) # 3rd model is the top-3 fit based on AIC
 df$GoF_top3_AIC <- -(df$top3_delta_observed_AIC - df$delta_expected) / df$delta_expected
+
+# ================= Best AIC, except BB1, 6 ==================
+df$best_model_name_AIC_no_bb1_6_bestindex <- sapply(df$model_names, function(x) which(!x %in% is_BB1_or_BB6)[[1]])
+df$best_model_name_AIC_no_bb1_6  <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[x$best_model_name_AIC_no_bb1_6_bestindex[[1]]]]))
+df$best_delta_observed_AIC_no_bb1_6  <- apply(df, 1, function(x) x$delta_observed[[x$best_model_name_AIC_no_bb1_6_bestindex[[1]]]])
+df$GoF_AIC_no_bb1_6  <- -(df$best_delta_observed_AIC_no_bb1_6  - df$delta_expected) / df$delta_expected
 
 # ================= Best SHC ==================
 df$best_model_name_SHC <- recode_and_reorder(apply(df, 1, function(x) x$model_names[[order(x$SHC)[[1]]]]))
@@ -225,7 +234,7 @@ df <- filter(df, GoF_AIC!=-Inf)
 df2 <- filter(df, delta_expected>0.001)
 nrow(filter(df, !delta_expected>0.001))
 
-# print stats
+# aic
 mean_df <- df2 %>%
   group_by(measure) %>%
   summarise(mean_val = mean(GoF_AIC))
@@ -235,7 +244,7 @@ mean_df2 <- df2 %>%
   summarise(mean_val2 = mean(GoF_AIC))
 mean_df2
 
-
+# shc
 mean_df <- df2 %>%
   group_by(measure) %>%
   summarise(mean_val = mean(GoF_SHC))
@@ -280,6 +289,10 @@ dev.off()
 # ---------- Plot 2b - GoF [Best AIC no bb1 / 6] ----------
 df2<- filter(df, delta_expected>0.001)
 nrow(filter(df, !delta_expected>0.001))
+
+mean_df <- df2 %>%
+  group_by(measure) %>%
+  summarise(mean_val = mean(GoF_AIC_no_bb1_6))
 
 pdf(paste0(output_path, '/splithalf_n', n_total_splits, '_fig2b.pdf'), width=3, height=7.8)
 p <- ggplot() +
